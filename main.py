@@ -135,7 +135,198 @@ async def init_db():
             )
         """)
         await db.commit()
-        async with aiosqlite.connect("bot_database.db") as db:
+        # ---------------- КЛАВИАТУРЫ ----------------
+def get_main_menu():
+    kb = InlineKeyboardBuilder()
+    kb.button(text="🎁 Выбить самокат (/get)", callback_data="action_get")
+    kb.button(text="🛵 Мой гараж (/garage)", callback_data="action_garage")
+    kb.button(text="👤 Мой профиль (/profile)", callback_data="action_profile")
+    kb.button(text="📦 Авито Рынок (/avito)", callback_data="action_avito")
+    kb.button(text="🏦 Банк (/bank)", callback_data="action_bank")
+    kb.button(text="🇪🇺 Рынок Магазин (/market)", callback_data="action_eu_market")
+    kb.button(text="🔧 Тюнинг (/tune)", callback_data="action_tuning")
+    kb.adjust(1)
+    return kb.as_markup()
+
+def get_back_btn():
+    kb = InlineKeyboardBuilder()
+    kb.button(text="⬅️ В главное меню", callback_data="action_menu")
+    return kb.as_markup()
+
+# ---------------- СТАРТ ----------------
+@dp.message(CommandStart())
+async def handle_start(message: types.Message):
+    user_id = message.from_user.id
+    username = (message.from_user.username or "Rider").lower()
+    first_name = message.from_user.first_name
+    now_iso = datetime.now().isoformat()
+
+    async with aiosqlite.connect("bot_database.db") as db:
+        await db.execute(
+            "INSERT OR IGNORE INTO users (user_id, username, first_name, registered_at, watts, volts) VALUES (?, ?, ?, ?, 0, 0)",
+            (user_id, username, first_name, now_iso)
+        )
+        await db.execute(
+            "UPDATE users SET username = ?, first_name = ? WHERE user_id = ?", 
+            (username, first_name, user_id)
+        )
+        await db.commit()
+
+    display_name, custom_id = get_user_display_info(user_id, first_name)
+
+    text = (
+        f"👋 Привет, {display_name}! (ID: {custom_id})\n\n"
+        "⚡ Добро пожаловать в E-ScooterCards!\n"
+        "Собирайте редкие самокаты, торгуйте на Авито, обменивайтесь и улучшайте транспорт!\n\n"
+        "📋 Список доступных команд:\n"
+        "• /get — Выбить самокат\n"
+        "• /garage — Открыть гараж\n"
+        "• /profile — Мой профиль\n"
+        "• /profile @username или /profile ID — Чужой профиль\n"
+        "• /avito — Каталог объявлений Авито\n"
+        "• /sell [ID_гаража] [Цена_W] — Продать самокат на Авито\n"
+        "• /trade @username [ID] — Передать самокат игроку напрямую\n"
+        "• /bank — Обмен Ватт на Вольты\n"
+        "• /market — Государственный магазин\n"
+        "• /tune [ID] — Установить тюнинг"
+    )
+    await message.answer(text, reply_markup=get_main_menu())
+
+@dp.callback_query(F.data == "action_menu")
+async def cb_menu(callback: types.CallbackQuery):
+    try:
+        await callback.message.delete()
+    except Exception:
+        pass
+    await callback.message.answer("🛴 Главное меню:", reply_markup=get_main_menu())
+    await callback.answer()
+
+# ---------------- ДРОП САМОКАТОВ ----------------
+@dp.callback_query(F.data == "action_get")
+@dp.message(Command("get", "getS"))
+async def handle_drop(event: types.Message | types.CallbackQuery):
+    message = event if isinstance(event, types.Message) else event.message
+    user_id = event.from_user.id
+    now = datetime.now()
+
+    async with aiosqlite.connect("bot_database.db") as db:
+        cursor = await db.execute("SELECT last_drop FROM users WHERE user_id = ?", (user_id,))
+        row = await cursor.fetchone()
+        await cursor.close()
+
+        if not row:
+            await db.execute(
+                "INSERT INTO users (user_id, username, first_name, registered_at, watts, volts) VALUES (?, ?, ?, ?, 0, 0)",
+                (user_id, (event.from_user.username or "Rider").lower(), event.from_user.first_name, now.isoformat())
+            )
+            await db.commit()
+            last_drop_str = None
+        else:
+            last_drop_str = row[0]
+
+        if last_drop_str:
+            last_drop = datetime.fromisoformat(last_drop_str)
+            cooldown_end = last_drop + timedelta(minutes=COOLDOWN_MINUTES)
+            if now < cooldown_end:
+                minutes_left = int((cooldown_end - now).total_seconds() // 60)
+                msg = f"⏳ Рано! Следующий самокат будет доступен через {minutes_left} мин."
+                if isinstance(event, types.CallbackQuery):
+                    await event.answer(msg, show_alert=True)
+                else:
+                    await message.answer(msg)
+                return
+
+        weights = [s["weight"] for s in SCOOTER_DATABASE]
+        dropped = random.choices(SCOOTER_DATABASE, weights=weights, k=1)[0]
+        earned_watts = random.randint(50, 200)
+
+        await db.execute(
+            "UPDATE users SET last_drop = ?, watts = watts + ? WHERE user_id = ?", 
+            (now.isoformat(), earned_watts, user_id)
+        )
+        await db.execute(
+            "INSERT INTO inventory (user_id, scooter_id, model_name, rarity, speed) VALUES (?, ?, ?, ?, ?)",
+            (user_id, dropped["id"], dropped["name"], dropped["rarity"], dropped["speed"])
+        )
+        await db.commit()
+
+    card_text = (
+        f"🎉 ВАМ ВЫПАЛ САМОКАТ!\n\n"
+        f"🏷 Модель: {dropped['name']}\n"
+        f"⭐ Редкость: {dropped['rarity']}\n"
+        f"⚡ Скорость: {dropped['speed']} км/ч\n"
+        f"💰 Награда: +{earned_watts} Ватт!\n\n"
+        f"Транспорт добавлен в ваш гараж."
+    )
+
+    if isinstance(event, types.CallbackQuery):
+        try:
+            await message.delete()
+        except Exception:
+            pass
+        await message.answer(card_text, reply_markup=get_back_btn())
+        await event.answer()
+    else:
+        await message.answer(card_text)
+
+# ---------------- ГАРАЖ ----------------
+@dp.callback_query(F.data == "action_garage")
+@dp.message(Command("garage", "garageS"))
+async def handle_garage(event: types.Message | types.CallbackQuery):
+    message = event if isinstance(event, types.Message) else event.message
+    user_id = event.from_user.id
+
+    async with aiosqlite.connect("bot_database.db") as db:
+        cursor = await db.execute("SELECT id, model_name, rarity, speed, tuning FROM inventory WHERE user_id = ?", (user_id,))
+        scooters = await cursor.fetchall()
+        await cursor.close()
+
+    if not scooters:
+        text = "🛵 Ваш гараж пуст.\nНажмите «Выбить самокат» или введите /get, чтобы получить первый транспорт!"
+    else:
+        text = f"🛵 Ваш гараж (Всего: {len(scooters)} шт.):\n\n"
+        for item in scooters[-15:]:
+            inv_id, name, rarity, speed, tuning = item
+            text += f"🔹 ID [{inv_id}] | {rarity} {name} | ⚡ {speed} км/ч | Мод: {tuning}\n"
+        if len(scooters) > 15:
+            text += f"\n...и еще {len(scooters) - 15} самокатов"
+
+    if isinstance(event, types.CallbackQuery):
+        try:
+            await message.delete()
+        except Exception:
+            pass
+        await message.answer(text, reply_markup=get_back_btn())
+        await event.answer()
+    else:
+        await message.answer(text)
+
+# ---------------- ПРОФИЛЬ (СВОЙ И ЧУЖОЙ) ----------------
+@dp.callback_query(F.data == "action_profile")
+@dp.message(Command("profile", "profileS"))
+async def handle_profile(event: types.Message | types.CallbackQuery):
+    message = event if isinstance(event, types.Message) else event.message
+    now = datetime.now()
+
+    target_user_id = None
+    target_username = None
+
+    if isinstance(event, types.Message):
+        args = message.text.split()
+        if len(args) > 1:
+            raw_target = args[1].strip()
+            if raw_target.startswith("@"):
+                target_username = raw_target[1:].lower()
+            elif raw_target in REVERSE_ADMIN_MAP:
+                target_user_id = REVERSE_ADMIN_MAP[raw_target]
+            elif raw_target.isdigit():
+                target_user_id = int(raw_target)
+            else:
+                target_username = raw_target.lower()
+
+    if not target_user_id and not target_username:
+        target_user_id = event.from_user.id
+    async with aiosqlite.connect("bot_database.db") as db:
         if target_user_id:
             cursor = await db.execute("SELECT user_id, username, first_name, registered_at, watts, volts FROM users WHERE user_id = ?", (target_user_id,))
         else:
@@ -172,7 +363,7 @@ async def init_db():
         f"🏷 Юзернейм: @{u_name or 'отсутствует'}\n"
         f"📅 В игре: {days} дн.\n\n"
         f"💳 Баланс:\n"
-        f"  • ⚡️ Ватты: {watts} W\n"
+        f"  • ⚡ Ватты: {watts} W\n"
         f"  • 🔋 Вольты: {volts} V\n\n"
         f"🛵 Всего самокатов в гараже: {scooters_count} шт."
     )
@@ -270,7 +461,7 @@ async def handle_avito_market(event: types.Message | types.CallbackQuery):
         kb_builder = InlineKeyboardBuilder()
         for lot in lots:
             lot_id, seller_id, seller_u, name, rarity, speed, tuning, price = lot
-            text += f"🔹 Лот #{lot_id}: {rarity} {name} | ⚡️ {speed} км/ч | Мод: {tuning}\n   💰 Цена: {price} W | Продавец: @{seller_u}\n\n"
+            text += f"🔹 Лот #{lot_id}: {rarity} {name} | ⚡ {speed} км/ч | Мод: {tuning}\n   💰 Цена: {price} W | Продавец: @{seller_u}\n\n"
             kb_builder.button(text=f"Купить #{lot_id} ({price} W)", callback_data=f"buy_avito_{lot_id}")
         
         kb_builder.button(text="⬅️ В главное меню", callback_data="action_menu")
@@ -454,7 +645,7 @@ async def cb_tuning(callback: types.CallbackQuery):
         "🔧 Мастерская Тюнинга\n\n"
         "Совместимость комплектующих:\n"
         "• ❄️ Кулер — устанавливается на Легендарные и 💎 Ультра\n"
-        "• ⚡️ Vesc — устанавливается на Эпические\n"
+        "• ⚡ Vesc — устанавливается на Эпические\n"
         "• ⚙️ Fardriver — устанавливается на Редкие и Обычные\n\n"
         "Чтобы установить тюнинг, используйте команду:\n"
         "/tune [ID самоката из гаража]"
@@ -494,7 +685,7 @@ async def handle_tuning_cmd(message: types.Message):
         if rarity in ["🟡 Легендарный", "💎 Ультра"]:
             kit = "Кулер ❄️"
         elif rarity == "🟣 Эпический":
-            kit = "Vesc ⚡️"
+            kit = "Vesc ⚡"
         else:
             kit = "Fardriver ⚙️"
 
