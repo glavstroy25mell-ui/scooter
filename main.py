@@ -8,36 +8,49 @@ from aiogram.filters import CommandStart, Command
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 # ---------------- КОНФИГУРАЦИЯ ----------------
-# Замените на ваш актуальный токен от BotFather
 BOT_TOKEN = "8909119386:AAGK9hTizA7n1pvrrwLmR2ew63Nf7Hh_VZg"
 
-COOLDOWN_MINUTES = 120  # Кулдаун 2 часа
+COOLDOWN_MINUTES = 120  # КД на дроп: 2 часа
 
-# Полная база данных самокатов
+# Карта специальных администраторов
+ADMIN_MAP = {
+    8597571970: {"custom_id": "0000000001", "role": "👑 [ADMIN]"},
+    5318117285: {"custom_id": "0000000002", "role": "👑 [ADMIN]"},
+    7978928618: {"custom_id": "0000000003", "role": "👑 [ADMIN]"},
+    7490453666: {"custom_id": "0000000004", "role": "👑 [ADMIN]"},
+}
+
+# Обратная карта для быстрого поиска по кастомному ID
+REVERSE_ADMIN_MAP = {v["custom_id"]: k for k, v in ADMIN_MAP.items()}
+
+# Временное хранилище активных предложений трейда
+ACTIVE_TRADES = {}
+
+# База данных самокатов
 SCOOTER_DATABASE = [
-    # --- Обычные (Common) ---
-    {"id": 1, "name": "Ninebot KickScooter ES1", "rarity": "⚪ Обычный", "speed": 20, "weight": 4, "price": 5000},
-    {"id": 2, "name": "Xiaomi Electric Scooter Essential", "rarity": "⚪ Обычный", "speed": 20, "weight": 4, "price": 5500},
-    {"id": 3, "name": "Ninebot KickScooter E22", "rarity": "⚪ Обычный", "speed": 20, "weight": 4, "price": 6000},
-    {"id": 4, "name": "Kugoo Kirin Mini 2", "rarity": "⚪ Обычный", "speed": 25, "weight": 4, "price": 6500},
-    {"id": 5, "name": "Acer Series 1", "rarity": "⚪ Обычный", "speed": 25, "weight": 3, "price": 7000},
-    {"id": 6, "name": "Ninebot KickScooter E25", "rarity": "⚪ Обычный", "speed": 25, "weight": 3, "price": 7200},
-    {"id": 7, "name": "Xiaomi Electric Scooter 3 Lite", "rarity": "⚪ Обычный", "speed": 25, "weight": 3, "price": 7500},
-    {"id": 8, "name": "Ninebot KickScooter D18W", "rarity": "⚪ Обычный", "speed": 25, "weight": 3, "price": 7800},
-    {"id": 9, "name": "Joyor A3", "rarity": "⚪ Обычный", "speed": 25, "weight": 3, "price": 8000},
-    {"id": 10, "name": "Hiper Slim", "rarity": "⚪ Обычный", "speed": 22, "weight": 3, "price": 8200},
-    {"id": 11, "name": "Halten Tony", "rarity": "⚪ Обычный", "speed": 25, "weight": 3, "price": 8500},
-    {"id": 12, "name": "Kugoo S1", "rarity": "⚪ Обычный", "speed": 25, "weight": 3, "price": 8700},
-    {"id": 13, "name": "Okai Neon Lite", "rarity": "⚪ Обычный", "speed": 25, "weight": 3, "price": 9000},
-    {"id": 14, "name": "Ninebot KickScooter F20A", "rarity": "⚪ Обычный", "speed": 25, "weight": 3, "price": 9200},
-    {"id": 15, "name": "Xiaomi Mi Electric Scooter 1S", "rarity": "⚪ Обычный", "speed": 25, "weight": 3, "price": 9500},
-    {"id": 16, "name": "Acer ES Series 3", "rarity": "⚪ Обычный", "speed": 25, "weight": 3, "price": 9700},
-    {"id": 17, "name": "Kugoo Kirin S3 Pro", "rarity": "⚪ Обычный", "speed": 25, "weight": 3, "price": 10000},
-    {"id": 18, "name": "GT Sonic", "rarity": "⚪ Обычный", "speed": 22, "weight": 3, "price": 10200},
-    {"id": 19, "name": "Ninebot KickScooter E2 Plus", "rarity": "⚪ Обычный", "speed": 25, "weight": 3, "price": 10500},
-    {"id": 20, "name": "Xiaomi Electric Scooter 4 Go", "rarity": "⚪ Обычный", "speed": 20, "weight": 3, "price": 11000},
+    # Обычные
+    {"id": 1, "name": "Ninebot KickScooter ES1", "rarity": "⚪️ Обычный", "speed": 20, "weight": 4, "price": 5000},
+    {"id": 2, "name": "Xiaomi Electric Scooter Essential", "rarity": "⚪️ Обычный", "speed": 20, "weight": 4, "price": 5500},
+    {"id": 3, "name": "Ninebot KickScooter E22", "rarity": "⚪️ Обычный", "speed": 20, "weight": 4, "price": 6000},
+    {"id": 4, "name": "Kugoo Kirin Mini 2", "rarity": "⚪️ Обычный", "speed": 25, "weight": 4, "price": 6500},
+    {"id": 5, "name": "Acer Series 1", "rarity": "⚪️ Обычный", "speed": 25, "weight": 3, "price": 7000},
+    {"id": 6, "name": "Ninebot KickScooter E25", "rarity": "⚪️ Обычный", "speed": 25, "weight": 3, "price": 7200},
+    {"id": 7, "name": "Xiaomi Electric Scooter 3 Lite", "rarity": "⚪️ Обычный", "speed": 25, "weight": 3, "price": 7500},
+    {"id": 8, "name": "Ninebot KickScooter D18W", "rarity": "⚪️ Обычный", "speed": 25, "weight": 3, "price": 7800},
+    {"id": 9, "name": "Joyor A3", "rarity": "⚪️ Обычный", "speed": 25, "weight": 3, "price": 8000},
+    {"id": 10, "name": "Hiper Slim", "rarity": "⚪️ Обычный", "speed": 22, "weight": 3, "price": 8200},
+    {"id": 11, "name": "Halten Tony", "rarity": "⚪️ Обычный", "speed": 25, "weight": 3, "price": 8500},
+    {"id": 12, "name": "Kugoo S1", "rarity": "⚪️ Обычный", "speed": 25, "weight": 3, "price": 8700},
+    {"id": 13, "name": "Okai Neon Lite", "rarity": "⚪️ Обычный", "speed": 25, "weight": 3, "price": 9000},
+    {"id": 14, "name": "Ninebot KickScooter F20A", "rarity": "⚪️ Обычный", "speed": 25, "weight": 3, "price": 9200},
+    {"id": 15, "name": "Xiaomi Mi Electric Scooter 1S", "rarity": "⚪️ Обычный", "speed": 25, "weight": 3, "price": 9500},
+    {"id": 16, "name": "Acer ES Series 3", "rarity": "⚪️ Обычный", "speed": 25, "weight": 3, "price": 9700},
+    {"id": 17, "name": "Kugoo Kirin S3 Pro", "rarity": "⚪️ Обычный", "speed": 25, "weight": 3, "price": 10000},
+    {"id": 18, "name": "GT Sonic", "rarity": "⚪️ Обычный", "speed": 22, "weight": 3, "price": 10200},
+    {"id": 19, "name": "Ninebot KickScooter E2 Plus", "rarity": "⚪️ Обычный", "speed": 25, "weight": 3, "price": 10500},
+    {"id": 20, "name": "Xiaomi Electric Scooter 4 Go", "rarity": "⚪️ Обычный", "speed": 20, "weight": 3, "price": 11000},
 
-    # --- Редкие (Rare) ---
+    # Редкие
     {"id": 21, "name": "Xiaomi Mi Electric Scooter Pro 2", "rarity": "🔵 Редкий", "speed": 25, "weight": 2, "price": 15000},
     {"id": 22, "name": "Ninebot KickScooter Max G30LP", "rarity": "🔵 Редкий", "speed": 30, "weight": 2, "price": 18000},
     {"id": 23, "name": "Ninebot KickScooter Max G30", "rarity": "🔵 Редкий", "speed": 30, "weight": 2, "price": 22000},
@@ -49,20 +62,20 @@ SCOOTER_DATABASE = [
     {"id": 29, "name": "Joyor Y8-S", "rarity": "🔵 Редкий", "speed": 35, "weight": 2, "price": 38000},
     {"id": 30, "name": "Halten Cross V3", "rarity": "🔵 Редкий", "speed": 40, "weight": 2, "price": 40000},
 
-    # --- Эпические (Epic) ---
+    # Эпические
     {"id": 31, "name": "KuKirin G3 Pro", "rarity": "🟣 Эпический", "speed": 65, "weight": 1, "price": 60000},
     {"id": 32, "name": "Kugoo Kirin G4", "rarity": "🟣 Эпический", "speed": 70, "weight": 1, "price": 70000},
     {"id": 33, "name": "Ultron T118", "rarity": "🟣 Эпический", "speed": 85, "weight": 1, "price": 80000},
     {"id": 34, "name": "Vsett 9+", "rarity": "🟣 Эпический", "speed": 55, "weight": 1, "price": 85000},
     {"id": 35, "name": "Vsett 10+", "rarity": "🟣 Эпический", "speed": 80, "weight": 1, "price": 90000},
 
-    # --- Легендарные (Legendary) ---
+    # Легендарные
     {"id": 36, "name": "Dualtron Thunder 3", "rarity": "🟡 Легендарный", "speed": 100, "weight": 0.3, "price": 150000},
     {"id": 37, "name": "Dualtron X-Limited", "rarity": "🟡 Легендарный", "speed": 110, "weight": 0.2, "price": 200000},
     {"id": 38, "name": "Kaabo Wolf King GT Pro", "rarity": "🟡 Легендарный", "speed": 100, "weight": 0.3, "price": 220000},
     {"id": 39, "name": "Nami Burn-E 2 Max", "rarity": "🟡 Легендарный", "speed": 105, "weight": 0.2, "price": 250000},
 
-    # --- Ультра (Ultra) ---
+    # Ультра
     {"id": 40, "name": "Kugoo Max Speed", "rarity": "💎 Ультра", "speed": 130, "weight": 0.08, "price": 400000},
     {"id": 41, "name": "Ninebot S3 Pro", "rarity": "💎 Ультра", "speed": 135, "weight": 0.07, "price": 450000},
     {"id": 42, "name": "Kugoo F3", "rarity": "💎 Ультра", "speed": 140, "weight": 0.06, "price": 500000},
@@ -75,6 +88,14 @@ SCOOTER_DATABASE = [
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
+# ---------------- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ----------------
+def get_user_display_info(user_id: int, original_name: str):
+    """Возвращает форматированное имя и отображаемый ID."""
+    if user_id in ADMIN_MAP:
+        adm = ADMIN_MAP[user_id]
+        return f"{adm['role']} {original_name}", adm["custom_id"]
+    return original_name, str(user_id)
+
 # ---------------- БАЗА ДАННЫХ ----------------
 async def init_db():
     async with aiosqlite.connect("bot_database.db") as db:
@@ -82,6 +103,7 @@ async def init_db():
             CREATE TABLE IF NOT EXISTS users (
                 user_id INTEGER PRIMARY KEY,
                 username TEXT,
+                first_name TEXT,
                 last_drop TEXT,
                 registered_at TEXT,
                 watts INTEGER DEFAULT 0,
@@ -99,189 +121,60 @@ async def init_db():
                 tuning TEXT DEFAULT 'Нет'
             )
         """)
+        await db.execute("""
+            CREATE TABLE IF NOT EXISTS avito_market (
+                lot_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                seller_id INTEGER,
+                seller_username TEXT,
+                model_name TEXT,
+                rarity TEXT,
+                speed INTEGER,
+                tuning TEXT,
+                price INTEGER,
+                created_at TEXT
+            )
+        """)
         await db.commit()
-
-# ---------------- КЛАВИАТУРЫ ----------------
-def get_main_menu():
-    kb = InlineKeyboardBuilder()
-    kb.button(text="🎁 Выбить самокат", callback_data="action_get")
-    kb.button(text="🛵 Мой гараж", callback_data="action_garage")
-    kb.button(text="👤 Мой профиль", callback_data="action_profile")
-    kb.button(text="🏦 Банк (1000W = 1V)", callback_data="action_bank")
-    kb.button(text="🇪🇺 Европейский рынок", callback_data="action_eu_market")
-    kb.button(text="🔧 Мастерская тюнинга", callback_data="action_tuning")
-    kb.adjust(1)
-    return kb.as_markup()
-
-def get_back_btn():
-    kb = InlineKeyboardBuilder()
-    kb.button(text="⬅️ В главное меню", callback_data="action_menu")
-    return kb.as_markup()
-
-# ---------------- ХЕНДЛЕРЫ ----------------
-@dp.message(CommandStart())
-async def handle_start(message: types.Message):
-    user_id = message.from_user.id
-    username = message.from_user.username or "Rider"
-    now_iso = datetime.now().isoformat()
-
-    async with aiosqlite.connect("bot_database.db") as db:
-        await db.execute(
-            "INSERT OR IGNORE INTO users (user_id, username, registered_at, watts, volts) VALUES (?, ?, ?, 0, 0)",
-            (user_id, username, now_iso)
-        )
-        await db.commit()
-
-    text = (
-        f"👋 Привет, {message.from_user.first_name}!\n\n"
-        "⚡ Добро пожаловать в E-ScooterCards!\n"
-        "Собирайте редкие самокаты, зарабатывайте Ватты и Вольты, покупайте технику на рынке и прокачивайте свой гараж!\n\n"
-        "Короткие команды:\n"
-        "• /getS — Выбить самокат\n"
-        "• /garageS — Мой гараж\n"
-        "• /profileS — Мой профиль"
-    )
-    await message.answer(text, reply_markup=get_main_menu())
-
-@dp.callback_query(F.data == "action_menu")
-async def cb_menu(callback: types.CallbackQuery):
-    try:
-        await callback.message.delete()
-    except Exception:
-        pass
-    await callback.message.answer("🛴 Главное меню:", reply_markup=get_main_menu())
-    await callback.answer()
-
-# ---------------- ДРОП САМОКАТОВ ----------------
-@dp.callback_query(F.data == "action_get")
-@dp.message(Command("get", "getS"))
-async def handle_drop(event: types.Message | types.CallbackQuery):
-    message = event if isinstance(event, types.Message) else event.message
-    user_id = event.from_user.id
-    now = datetime.now()
-
-    async with aiosqlite.connect("bot_database.db") as db:
-        cursor = await db.execute("SELECT last_drop, registered_at FROM users WHERE user_id = ?", (user_id,))
-        row = await cursor.fetchone()
-        await cursor.close()
-
-        if not row:
-            await db.execute("INSERT INTO users (user_id, registered_at, watts, volts) VALUES (?, ?, 0, 0)", (user_id, now.isoformat()))
-            await db.commit()
-            reg_time = now.isoformat()
-            last_drop_str = None
+        async with aiosqlite.connect("bot_database.db") as db:
+        if target_user_id:
+            cursor = await db.execute("SELECT user_id, username, first_name, registered_at, watts, volts FROM users WHERE user_id = ?", (target_user_id,))
         else:
-            last_drop_str, reg_time = row[0], row[1]
-
-        if last_drop_str:
-            last_drop = datetime.fromisoformat(last_drop_str)
-            cooldown_end = last_drop + timedelta(minutes=COOLDOWN_MINUTES)
-            if now < cooldown_end:
-                minutes_left = int((cooldown_end - now).total_seconds() // 60)
-                msg = f"⏳ Рано! Следующий самокат будет доступен через {minutes_left} мин."
-                if isinstance(event, types.CallbackQuery):
-                    await event.answer(msg, show_alert=True)
-                else:
-                    await message.answer(msg)
-                return
-
-        weights = [s["weight"] for s in SCOOTER_DATABASE]
-        dropped = random.choices(SCOOTER_DATABASE, weights=weights, k=1)[0]
-
-        # Награда в Ваттах при каждом выпадении
-        earned_watts = random.randint(50, 200)
-
-        await db.execute(
-            "UPDATE users SET last_drop = ?, watts = watts + ? WHERE user_id = ?", 
-            (now.isoformat(), earned_watts, user_id)
-        )
-        await db.execute(
-            "INSERT INTO inventory (user_id, scooter_id, model_name, rarity, speed) VALUES (?, ?, ?, ?, ?)",
-            (user_id, dropped["id"], dropped["name"], dropped["rarity"], dropped["speed"])
-        )
-        await db.commit()
-
-    card_text = (
-        f"🎉 ВАМ ВЫПАЛ САМОКАТ!\n\n"
-        f"🏷 Модель: {dropped['name']}\n"
-        f"⭐️ Редкость: {dropped['rarity']}\n"
-        f"⚡️ Скорость: {dropped['speed']} км/ч\n"
-        f"💰 Награда: +{earned_watts} Ватт!\n\n"
-        f"Транспорт добавлен в гараж."
-    )
-
-    if isinstance(event, types.CallbackQuery):
-        try:
-            await message.delete()
-        except Exception:
-            pass
-        await message.answer(card_text, reply_markup=get_back_btn())
-        await event.answer()
-    else:
-        await message.answer(card_text)
-
-# ---------------- ГАРАЖ ----------------
-@dp.callback_query(F.data == "action_garage")
-@dp.message(Command("garage", "garageS"))
-async def handle_garage(event: types.Message | types.CallbackQuery):
-    message = event if isinstance(event, types.Message) else event.message
-    user_id = event.from_user.id
-
-    async with aiosqlite.connect("bot_database.db") as db:
-        cursor = await db.execute("SELECT id, model_name, rarity, speed, tuning FROM inventory WHERE user_id = ?", (user_id,))
-        scooters = await cursor.fetchall()
-        await cursor.close()
-
-    if not scooters:
-        text = "🛵 Ваш гараж пуст.\nНажмите «Выбить самокат», чтобы получить первый транспорт!"
-    else:
-        text = f"🛵 Ваш гараж (Всего: {len(scooters)} шт.):\n\n"
-        for item in scooters[-15:]:
-            inv_id, name, rarity, speed, tuning = item
-            text += f"ID [{inv_id}] | {rarity} {name} | ⚡️ {speed} км/ч | Тюнинг: {tuning}\n"
-        if len(scooters) > 15:
-            text += f"\n...и еще {len(scooters) - 15} самокатов"
-
-    if isinstance(event, types.CallbackQuery):
-        try:
-            await message.delete()
-        except Exception:
-            pass
-        await message.answer(text, reply_markup=get_back_btn())
-        await event.answer()
-    else:
-        await message.answer(text)
-
-# ---------------- ПРОФИЛЬ ----------------
-@dp.callback_query(F.data == "action_profile")
-@dp.message(Command("profile", "profileS"))
-async def handle_profile(event: types.Message | types.CallbackQuery):
-    message = event if isinstance(event, types.Message) else event.message
-    user_id = event.from_user.id
-    now = datetime.now()
-
-    async with aiosqlite.connect("bot_database.db") as db:
-        cursor = await db.execute("SELECT registered_at, watts, volts FROM users WHERE user_id = ?", (user_id,))
+            cursor = await db.execute("SELECT user_id, username, first_name, registered_at, watts, volts FROM users WHERE username = ?", (target_username,))
+        
         user_row = await cursor.fetchone()
         await cursor.close()
 
-        cursor = await db.execute("SELECT model_name, rarity, speed FROM inventory WHERE user_id = ?", (user_id,))
-        inventory = await cursor.fetchall()
+        if not user_row:
+            not_found_msg = "❌ Пользователь не найден в базе данных бота."
+            if isinstance(event, types.CallbackQuery):
+                await event.answer(not_found_msg, show_alert=True)
+            else:
+                await message.answer(not_found_msg)
+            return
+
+        u_id, u_name, f_name, reg_at, watts, volts = user_row
+
+        cursor = await db.execute("SELECT COUNT(*) FROM inventory WHERE user_id = ?", (u_id,))
+        count_row = await cursor.fetchone()
         await cursor.close()
 
-    reg_date = datetime.fromisoformat(user_row[0]) if user_row and user_row[0] else now
+    reg_date = datetime.fromisoformat(reg_at) if reg_at else now
     days = (now - reg_date).days
-    watts = user_row[1] if user_row else 0
-    volts = user_row[2] if user_row else 0
+    scooters_count = count_row[0] if count_row else 0
+    display_name, custom_id = get_user_display_info(u_id, f_name or u_name or "Rider")
+
+    is_self = (u_id == event.from_user.id)
+    header = "👤 Ваш профиль райдера:" if is_self else "👤 Профиль игрока:"
 
     profile_text = (
-        f"👤 Профиль райдера: {event.from_user.full_name}\n"
-        f"🆔 ID: {user_id}\n"
+        f"{header} {display_name}\n"
+        f"🆔 ID: {custom_id}\n"
+        f"🏷 Юзернейм: @{u_name or 'отсутствует'}\n"
         f"📅 В игре: {days} дн.\n\n"
         f"💳 Баланс:\n"
         f"  • ⚡️ Ватты: {watts} W\n"
         f"  • 🔋 Вольты: {volts} V\n\n"
-        f"🛵 Всего самокатов: {len(inventory)} шт."
+        f"🛵 Всего самокатов в гараже: {scooters_count} шт."
     )
 
     if isinstance(event, types.CallbackQuery):
@@ -294,23 +187,191 @@ async def handle_profile(event: types.Message | types.CallbackQuery):
     else:
         await message.answer(profile_text)
 
+# ---------------- АВИТО (P2P МАРКЕТПЛЕЙС) ----------------
+@dp.message(Command("sell"))
+async def handle_sell_cmd(message: types.Message):
+    args = message.text.split()
+    if len(args) < 3:
+        await message.answer(
+            "📦 Продажа самоката на Авито:\n"
+            "Используйте команду: /sell [ID_из_гаража] [Цена_в_Ваттах]\n\n"
+            "Пример: /sell 3 15000 (выставит самокат под ID 3 за 15000 W)"
+        )
+        return
+
+    try:
+        inv_id = int(args[1])
+        price = int(args[2])
+    except ValueError:
+        await message.answer("❌ ID самоката и цена должны быть целыми числами.")
+        return
+
+    if price <= 0:
+        await message.answer("❌ Цена должна быть больше 0 Ватт.")
+        return
+
+    user_id = message.from_user.id
+    username = message.from_user.username or message.from_user.first_name
+
+    async with aiosqlite.connect("bot_database.db") as db:
+        # Проверяем наличие самоката в гараже
+        cursor = await db.execute(
+            "SELECT model_name, rarity, speed, tuning FROM inventory WHERE id = ? AND user_id = ?",
+            (inv_id, user_id)
+        )
+        scooter = await cursor.fetchone()
+        await cursor.close()
+
+        if not scooter:
+            await message.answer("❌ Этот самокат не найден в вашем гараже.")
+            return
+
+        name, rarity, speed, tuning = scooter
+
+        # Удаляем из гаража и выставляем на Авито
+        await db.execute("DELETE FROM inventory WHERE id = ?", (inv_id,))
+        await db.execute("""
+            INSERT INTO avito_market (seller_id, seller_username, model_name, rarity, speed, tuning, price, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """, (user_id, username, name, rarity, speed, tuning, price, datetime.now().isoformat()))
+        await db.commit()
+
+    await message.answer(
+        f"✅ Вы успешно выставили {rarity} {name} на Авито за {price} W!\n"
+        f"Объявление теперь доступно в общем каталоге /avito."
+    )
+
+@dp.callback_query(F.data == "action_avito")
+@dp.message(Command("avito"))
+async def handle_avito_market(event: types.Message | types.CallbackQuery):
+    message = event if isinstance(event, types.Message) else event.message
+    
+    async with aiosqlite.connect("bot_database.db") as db:
+        cursor = await db.execute("""
+            SELECT lot_id, seller_id, seller_username, model_name, rarity, speed, tuning, price 
+            FROM avito_market ORDER BY lot_id DESC LIMIT 10
+        """)
+        lots = await cursor.fetchall()
+        await cursor.close()
+
+    if not lots:
+        text = (
+            "📦 Авито — Площадка объявлений\n\n"
+            "Сейчас нет активных объявлений.\n"
+            "Вы можете выставить свой самокат командой:\n"
+            "/sell [ID_из_гаража] [Цена_W]"
+        )
+        kb = get_back_btn()
+    else:
+        text = (
+            "📦 Авито — Площадка объявлений игроков:\n\n"
+            "Нажмите на кнопку лота, чтобы купить его или снять с продажи (если он ваш):\n\n"
+        )
+        kb_builder = InlineKeyboardBuilder()
+        for lot in lots:
+            lot_id, seller_id, seller_u, name, rarity, speed, tuning, price = lot
+            text += f"🔹 Лот #{lot_id}: {rarity} {name} | ⚡️ {speed} км/ч | Мод: {tuning}\n   💰 Цена: {price} W | Продавец: @{seller_u}\n\n"
+            kb_builder.button(text=f"Купить #{lot_id} ({price} W)", callback_data=f"buy_avito_{lot_id}")
+        
+        kb_builder.button(text="⬅️ В главное меню", callback_data="action_menu")
+        kb_builder.adjust(1)
+        kb = kb_builder.as_markup()
+
+    if isinstance(event, types.CallbackQuery):
+        try:
+            await message.delete()
+        except Exception:
+            pass
+        await message.answer(text, reply_markup=kb)
+        await event.answer()
+    else:
+        await message.answer(text, reply_markup=kb)
+
+@dp.callback_query(F.data.startswith("buy_avito_"))
+async def cb_buy_avito(callback: types.CallbackQuery):
+    lot_id = int(callback.data.replace("buy_avito_", ""))
+    buyer_id = callback.from_user.id
+
+    async with aiosqlite.connect("bot_database.db") as db:
+        cursor = await db.execute("""
+            SELECT seller_id, seller_username, model_name, rarity, speed, tuning, price 
+            FROM avito_market WHERE lot_id = ?
+        """, (lot_id,))
+        lot = await cursor.fetchone()
+        await cursor.close()
+
+        if not lot:
+            await callback.answer("❌ Этот лот уже продан или снят с публикации.", show_alert=True)
+            return
+
+        seller_id, seller_u, name, rarity, speed, tuning, price = lot
+
+        # Если лот принадлежит самому покупателю — возвращаем в гараж
+        if seller_id == buyer_id:
+            await db.execute("DELETE FROM avito_market WHERE lot_id = ?", (lot_id,))
+            await db.execute("""
+                INSERT INTO inventory (user_id, model_name, rarity, speed, tuning)
+                VALUES (?, ?, ?, ?, ?)
+            """, (buyer_id, name, rarity, speed, tuning))
+            await db.commit()
+            await callback.answer("✅ Вы сняли свой лот с Авито и вернули самокат в гараж!", show_alert=True)
+            await handle_avito_market(callback)
+            return
+
+        # Проверяем баланс покупателя
+        cursor = await db.execute("SELECT watts FROM users WHERE user_id = ?", (buyer_id,))
+        user_row = await cursor.fetchone()
+        await cursor.close()
+
+        if not user_row or user_row[0] < price:
+            await callback.answer(f"❌ Недостаточно Ватт! Требуется {price} W.", show_alert=True)
+            return
+
+        # Проводим транзакцию
+        await db.execute("UPDATE users SET watts = watts - ? WHERE user_id = ?", (price, buyer_id))
+        await db.execute("UPDATE users SET watts = watts + ? WHERE user_id = ?", (price, seller_id))
+        await db.execute("DELETE FROM avito_market WHERE lot_id = ?", (lot_id,))
+        await db.execute("""
+            INSERT INTO inventory (user_id, model_name, rarity, speed, tuning)
+            VALUES (?, ?, ?, ?, ?)
+        """, (buyer_id, name, rarity, speed, tuning))
+        await db.commit()
+
+    await callback.answer(f"🎉 Вы успешно купили {name} на Авито за {price} W!", show_alert=True)
+
+    try:
+        await bot.send_message(
+            seller_id, 
+            f"💰 Ваш товар на Авито продан!\n"
+            f"Самокат: {rarity} {name}\n"
+            f"Вам начислено: +{price} W"
+        )
+    except Exception:
+        pass
+
+    await handle_avito_market(callback)
+
 # ---------------- БАНК ----------------
 @dp.callback_query(F.data == "action_bank")
-async def cb_bank(callback: types.CallbackQuery):
+@dp.message(Command("bank"))
+async def cb_bank(event: types.Message | types.CallbackQuery):
+    message = event if isinstance(event, types.Message) else event.message
     kb = InlineKeyboardBuilder()
     kb.button(text="🔄 Обменять 1000 Ватт ➡️ 1 Вольт", callback_data="bank_exchange")
     kb.button(text="⬅️ В главное меню", callback_data="action_menu")
     kb.adjust(1)
 
-    try:
-        await callback.message.delete()
-    except Exception:
-        pass
-    await callback.message.answer(
-        "🏦 Центральный Банк Энергии\n\nЗдесь вы можете конвертировать Ватты в Вольты.\nКурс: 1000 Ватт = 1 Вольт", 
-        reply_markup=kb.as_markup()
-    )
-    await callback.answer()
+    text = "🏦 Центральный Банк Энергии\n\nЗдесь вы можете конвертировать Ватты в Вольты.\nКурс: 1000 Ватт = 1 Вольт"
+    
+    if isinstance(event, types.CallbackQuery):
+        try:
+            await message.delete()
+        except Exception:
+            pass
+        await message.answer(text, reply_markup=kb.as_markup())
+        await event.answer()
+    else:
+        await message.answer(text, reply_markup=kb.as_markup())
 
 @dp.callback_query(F.data == "bank_exchange")
 async def cb_exchange(callback: types.CallbackQuery):
@@ -332,10 +393,12 @@ async def cb_exchange(callback: types.CallbackQuery):
 
 # ---------------- ЕВРОПЕЙСКИЙ РЫНОК ----------------
 @dp.callback_query(F.data == "action_eu_market")
-async def cb_eu_market(callback: types.CallbackQuery):
-    text = "🇪🇺 Европейский рынок самокатов\nПокупка техники напрямую за Ватты:\n\n"
+@dp.message(Command("market"))
+async def cb_eu_market(event: types.Message | types.CallbackQuery):
+    message = event if isinstance(event, types.Message) else event.message
+    text = "🇪🇺 Европейский рынок самокатов\nПокупка новой техники напрямую за Ватты:\n\n"
     kb = InlineKeyboardBuilder()
-    # Показываем варианты покупки моделей до Легендарной редкости
+
     for scooter in SCOOTER_DATABASE[:6]:
         kb.button(
             text=f"{scooter['name']} — {scooter['price']} W", 
@@ -345,12 +408,15 @@ async def cb_eu_market(callback: types.CallbackQuery):
     kb.button(text="⬅️ В главное меню", callback_data="action_menu")
     kb.adjust(1)
 
-    try:
-        await callback.message.delete()
-    except Exception:
-        pass
-    await callback.message.answer(text, reply_markup=kb.as_markup())
-    await callback.answer()
+    if isinstance(event, types.CallbackQuery):
+        try:
+            await message.delete()
+        except Exception:
+            pass
+        await message.answer(text, reply_markup=kb.as_markup())
+        await event.answer()
+    else:
+        await message.answer(text, reply_markup=kb.as_markup())
 
 @dp.callback_query(F.data.startswith("buy_eu_"))
 async def cb_buy_eu(callback: types.CallbackQuery):
@@ -390,7 +456,7 @@ async def cb_tuning(callback: types.CallbackQuery):
         "• ❄️ Кулер — устанавливается на Легендарные и 💎 Ультра\n"
         "• ⚡️ Vesc — устанавливается на Эпические\n"
         "• ⚙️ Fardriver — устанавливается на Редкие и Обычные\n\n"
-        "Чтобы установить тюнинг, отправьте команду:\n"
+        "Чтобы установить тюнинг, используйте команду:\n"
         "/tune [ID самоката из гаража]"
     )
     try:
@@ -435,7 +501,152 @@ async def handle_tuning_cmd(message: types.Message):
         await db.execute("UPDATE inventory SET tuning = ? WHERE id = ?", (kit, scooter_inv_id))
         await db.commit()
 
-    await message.answer(f"✅ На самокат {model_name} (ID: {scooter_inv_id}) успешно установлен {kit}!")
+    await message.answer(f"✅ На самокат {model_name} (ID: {scooter_inv_id}) успешно установлен тюнинг {kit}!")
+
+# ---------------- СИСТЕМА ТРЕЙДИНГА ----------------
+@dp.message(Command("trade"))
+async def handle_trade_cmd(message: types.Message):
+    args = message.text.split()
+    if len(args) < 3:
+        await message.answer(
+            "⚠️ Формат команды трейда:\n"
+            "/trade @username ID_самоката\n\n"
+            "Пример: /trade @friend 5 (где 5 — ID самоката из вашего гаража)"
+        )
+        return
+
+    target_username = args[1].replace("@", "").strip().lower()
+    try:
+        scooter_inv_id = int(args[2])
+    except ValueError:
+        await message.answer("❌ ID самоката должен быть числом.")
+        return
+
+    sender_id = message.from_user.id
+    sender_username = (message.from_user.username or "Rider").lower()
+
+    if target_username == sender_username:
+        await message.answer("❌ Вы не можете отправить трейд самому себе.")
+        return
+
+    async with aiosqlite.connect("bot_database.db") as db:
+        cursor = await db.execute(
+            "SELECT model_name, rarity, speed, tuning FROM inventory WHERE id = ? AND user_id = ?", 
+            (scooter_inv_id, sender_id)
+        )
+        scooter = await cursor.fetchone()
+        await cursor.close()
+
+        if not scooter:
+            await message.answer("❌ Этот самокат не найден в вашем гараже.")
+            return
+
+        cursor = await db.execute("SELECT user_id FROM users WHERE username = ?", (target_username,))
+        target_row = await cursor.fetchone()
+        await cursor.close()
+        if not target_row:
+            await message.answer(f"❌ Пользователь @{target_username} еще не запускал этого бота.")
+            return
+
+        target_id = target_row[0]
+
+    trade_id = f"tr_{random.randint(100000, 999999)}"
+    ACTIVE_TRADES[trade_id] = {
+        "sender_id": sender_id,
+        "target_id": target_id,
+        "scooter_inv_id": scooter_inv_id,
+        "scooter_name": scooter[0]
+    }
+
+    sender_name, _ = get_user_display_info(sender_id, message.from_user.first_name)
+
+    kb = InlineKeyboardBuilder()
+    kb.button(text="✅ Принять обмен", callback_data=f"trade_accept_{trade_id}")
+    kb.button(text="❌ Отклонить", callback_data=f"trade_decline_{trade_id}")
+    kb.adjust(2)
+
+    try:
+        await bot.send_message(
+            chat_id=target_id,
+            text=(
+                f"🤝 Вам поступило предложение обмена!\n\n"
+                f"От: {sender_name} (@{sender_username})\n"
+                f"Самокат: {scooter[1]} {scooter[0]}\n"
+                f"Скорость: {scooter[2]} км/ч | Мод: {scooter[3]}\n\n"
+                f"Хотите принять технику в свой гараж?"
+            ),
+            reply_markup=kb.as_markup()
+        )
+        await message.answer(f"📨 Запрос на трейд успешно отправлен пользователю @{target_username}!")
+    except Exception:
+        await message.answer("❌ Не удалось отправить уведомление получателю (возможно, диалог с ботом заблокирован).")
+
+@dp.callback_query(F.data.startswith("trade_accept_"))
+async def cb_trade_accept(callback: types.CallbackQuery):
+    trade_id = callback.data.replace("trade_accept_", "")
+    trade = ACTIVE_TRADES.get(trade_id)
+
+    if not trade:
+        await callback.answer("❌ Трейд устарел или был отменен.", show_alert=True)
+        try:
+            await callback.message.delete()
+        except Exception:
+            pass
+        return
+
+    if callback.from_user.id != trade["target_id"]:
+        await callback.answer("❌ Это предложение адресовано не вам!", show_alert=True)
+        return
+
+    async with aiosqlite.connect("bot_database.db") as db:
+        cursor = await db.execute(
+            "SELECT id FROM inventory WHERE id = ? AND user_id = ?", 
+            (trade["scooter_inv_id"], trade["sender_id"])
+        )
+        exists = await cursor.fetchone()
+        await cursor.close()
+
+        if not exists:
+            await callback.answer("❌ Самокат больше не принадлежит отправителю.", show_alert=True)
+            ACTIVE_TRADES.pop(trade_id, None)
+            return
+
+        await db.execute("UPDATE inventory SET user_id = ? WHERE id = ?", (trade["target_id"], trade["scooter_inv_id"]))
+        await db.commit()
+
+    ACTIVE_TRADES.pop(trade_id, None)
+
+    await callback.message.edit_text(f"🎉 Вы успешно приняли самокат {trade['scooter_name']} в свой гараж!")
+    try:
+        await bot.send_message(trade["sender_id"], f"🤝 Трейд завершен! Ваш самокат {trade['scooter_name']} успешно передан новому владельцу.")
+    except Exception:
+        pass
+    await callback.answer()
+
+@dp.callback_query(F.data.startswith("trade_decline_"))
+async def cb_trade_decline(callback: types.CallbackQuery):
+    trade_id = callback.data.replace("trade_decline_", "")
+    trade = ACTIVE_TRADES.get(trade_id)
+
+    if not trade:
+        await callback.answer("❌ Трейд уже не активен.", show_alert=True)
+        try:
+            await callback.message.delete()
+        except Exception:
+            pass
+        return
+
+    if callback.from_user.id != trade["target_id"]:
+        await callback.answer("❌ Это действие не для вас!", show_alert=True)
+        return
+
+    ACTIVE_TRADES.pop(trade_id, None)
+    await callback.message.edit_text("❌ Вы отклонили предложение обмена.")
+    try:
+        await bot.send_message(trade["sender_id"], f"⚠️ Пользователь отклонил ваш трейд на {trade['scooter_name']}.")
+    except Exception:
+        pass
+    await callback.answer()
 
 # ---------------- ЗАПУСК ----------------
 async def main():
