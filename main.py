@@ -135,11 +135,12 @@ async def set_main_menu(bot: Bot):
         types.BotCommand(command="start", description="🏠 Главное меню"),
         types.BotCommand(command="get", description="🎁 Выбить самокат"),
         types.BotCommand(command="garage", description="🛵 Мой гараж"),
-        types.BotCommand(command="profile", description="👤 Мой профиль"),
+types.BotCommand(command="profile", description="👤 Мой профиль"),
         types.BotCommand(command="avito", description="📦 Авито рынок"),
         types.BotCommand(command="bank", description="🏦 Банк (обмен валюты)"),
         types.BotCommand(command="market", description="🇪🇺 Европейский рынок"),
         types.BotCommand(command="tune", description="🔧 Тюнинг самоката"),
+        types.BotCommand(command="admin", description="🛠 Админ-панель (0000000001)"),
         types.BotCommand(command="help", description="❓ Помощь")
     ]
     await bot.set_my_commands(commands=commands, scope=types.BotCommandScopeDefault())
@@ -320,6 +321,7 @@ async def handle_profile(event: types.Message | types.CallbackQuery):
     days = (now - reg_date).days
     scooters_count = count_row[0] if count_row else 0
     display_name, custom_id = get_user_display_info(u_id, f_name or u_name or "Rider")
+
     profile_text = (
         f"👤 Профиль райдера: {display_name}\n"
         f"🆔 ID: {custom_id}\n"
@@ -563,6 +565,75 @@ async def handle_tuning_cmd(message: types.Message):
 
     await message.answer(f"✅ Установлен тюнинг {kit} на {model_name}!")
 
+# --- АДМИНСКАЯ КОМАНДА ДЛЯ ID 0000000001 ---
+@dp.message(Command("admin"))
+async def handle_admin_panel(message: types.Message):
+    user_id = message.from_user.id
+    
+    # Проверяем, главный ли это администратор (с кастомным ID 0000000001)
+    if user_id not in ADMIN_MAP or ADMIN_MAP[user_id]["custom_id"] != "0000000001":
+        await message.answer("❌ У вас нет доступа к этой команде.")
+        return
+
+    args = message.text.split()
+    if len(args) < 4:
+        help_text = (
+            "🛠 Панель администратора (ID: 0000000001):\n\n"
+            "1️⃣ Выдать Ватты:\n"
+            "/admin money [ID_игрока] [сумма]\n"
+            "Пример: /admin money 0000000002 50000\n\n"
+            "2️⃣ Выдать самокат по ID из базы:\n"
+            "/admin scooter [ID_игрока] [ID_самоката_из_базы]\n"
+            "Пример: /admin scooter 0000000002 36 (выдаст Dualtron Thunder 3)"
+        )
+        await message.answer(help_text, parse_mode="Markdown")
+        return
+
+    action = args[1]
+    target_raw_id = args[2]
+
+    # Определяем реальный ID (поддерживает кастомные ID типа 000000000X)
+    target_user_id = REVERSE_ADMIN_MAP.get(target_raw_id)
+    if not target_user_id:
+        try:
+            target_user_id = int(target_raw_id)
+        except ValueError:
+            await message.answer("❌ Неверный формат ID пользователя.")
+            return
+
+    async with aiosqlite.connect("bot_database.db") as db:
+        if action == "money":
+            try:
+                amount = int(args[3])
+            except ValueError:
+                await message.answer("❌ Сумма должна быть числом.")
+                return
+
+            await db.execute("UPDATE users SET watts = watts + ? WHERE user_id = ?", (amount, target_user_id))
+            await db.commit()
+            await message.answer(f"✅ Успешно выдано {amount} Ватт игроку с ID {target_raw_id}!")
+
+        elif action == "scooter":
+            try:
+                scooter_id = int(args[3])
+            except ValueError:
+                await message.answer("❌ ID самоката должен быть числом.")
+                return
+
+            scooter = next((s for s in SCOOTER_DATABASE if s["id"] == scooter_id), None)
+            if not scooter:
+                await message.answer("❌ Самокат с таким ID не найден в базе данных.")
+                return
+
+            await db.execute(
+                "INSERT INTO inventory (user_id, scooter_id, model_name, rarity, speed) VALUES (?, ?, ?, ?, ?)",
+                (target_user_id, scooter["id"], scooter["name"], scooter["rarity"], scooter["speed"])
+            )
+            await db.commit()
+            await message.answer(f"✅ Успешно выдан самокат {scooter['rarity']} {scooter['name']} игроку с ID {target_raw_id}!", parse_mode="Markdown")
+        else:
+            await message.answer("❌ Неизвестное действие. Используйте money или scooter.")
+
 @dp.message(Command("trade"))
 async def handle_trade_cmd(message: types.Message):
     await message.answer("🤝 Система трейдов активна.")
@@ -580,5 +651,5 @@ async def main():
     print(f"🚀 Бот @{me.username} успешно запущен!")
     await dp.start_polling(bot)
 
-if __name__ == "_main__":
+if __name__ == "__main__":
     asyncio.run(main())
