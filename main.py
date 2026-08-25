@@ -139,9 +139,7 @@ types.BotCommand(command="profile", description="👤 Мой профиль"),
         types.BotCommand(command="avito", description="📦 Авито рынок"),
         types.BotCommand(command="bank", description="🏦 Банк (обмен валюты)"),
         types.BotCommand(command="market", description="🇪🇺 Европейский рынок"),
-        types.BotCommand(command="tune", description="🔧 Тюнинг самоката"),
-        types.BotCommand(command="admin", description="🛠 Админ-панель (0000000001)"),
-        types.BotCommand(command="help", description="❓ Помощь")
+        types.BotCommand(command="tune", description="🔧 Тюнинг самоката")
     ]
     await bot.set_my_commands(commands=commands, scope=types.BotCommandScopeDefault())
 
