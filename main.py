@@ -24,7 +24,7 @@ REVERSE_ADMIN_MAP = {v["custom_id"]: k for k, v in ADMIN_MAP.items()}
 ACTIVE_TRADES = {}
 
 SCOOTER_DATABASE = [
-    # Обычные
+    # --- Обычные (Легкие городские, 20-30 км/ч) ---
     {"id": 1, "name": "Ninebot KickScooter ES1", "rarity": "⚪️ Обычный", "speed": 20, "weight": 4, "price": 5000},
     {"id": 2, "name": "Xiaomi Electric Scooter Essential", "rarity": "⚪️ Обычный", "speed": 20, "weight": 4, "price": 5500},
     {"id": 3, "name": "Ninebot KickScooter E22", "rarity": "⚪️ Обычный", "speed": 20, "weight": 4, "price": 6000},
@@ -45,40 +45,149 @@ SCOOTER_DATABASE = [
     {"id": 18, "name": "GT Sonic", "rarity": "⚪️ Обычный", "speed": 22, "weight": 3, "price": 10200},
     {"id": 19, "name": "Ninebot KickScooter E2 Plus", "rarity": "⚪️ Обычный", "speed": 25, "weight": 3, "price": 10500},
     {"id": 20, "name": "Xiaomi Electric Scooter 4 Go", "rarity": "⚪️ Обычный", "speed": 20, "weight": 3, "price": 11000},
+    {"id": 21, "name": "Kugoo Wish 01", "rarity": "⚪️ Обычный", "speed": 25, "weight": 3, "price": 11200},
+    {"id": 22, "name": "Kugoo Wish 02", "rarity": "⚪️ Обычный", "speed": 28, "weight": 3, "price": 11500},
+    {"id": 23, "name": "Kugoo S3", "rarity": "⚪️ Обычный", "speed": 25, "weight": 3, "price": 11800},
+    {"id": 24, "name": "Halten Lite", "rarity": "⚪️ Обычный", "speed": 25, "weight": 3, "price": 12000},
+    {"id": 25, "name": "Ninebot ES2", "rarity": "⚪️ Обычный", "speed": 25, "weight": 3, "price": 12500},
+    {"id": 26, "name": "Ninebot ES4", "rarity": "⚪️ Обычный", "speed": 30, "weight": 3, "price": 13000},
+    {"id": 27, "name": "Xiaomi Mi Scooter Pro", "rarity": "⚪️ Обычный", "speed": 25, "weight": 3, "price": 13500},
+    {"id": 28, "name": "Joyor F3", "rarity": "⚪️ Обычный", "speed": 25, "weight": 3, "price": 14000},
+    {"id": 29, "name": "Aovo Pro", "rarity": "⚪️ Обычный", "speed": 30, "weight": 3, "price": 14200},
+    {"id": 30, "name": "Kugoo C1 Pro", "rarity": "⚪️ Обычный", "speed": 30, "weight": 3, "price": 14500},
 
-    # Редкие
-    {"id": 21, "name": "Xiaomi Mi Electric Scooter Pro 2", "rarity": "🔵 Редкий", "speed": 25, "weight": 2, "price": 15000},
-    {"id": 22, "name": "Ninebot KickScooter Max G30LP", "rarity": "🔵 Редкий", "speed": 30, "weight": 2, "price": 18000},
-    {"id": 23, "name": "Ninebot KickScooter Max G30", "rarity": "🔵 Редкий", "speed": 30, "weight": 2, "price": 22000},
-    {"id": 24, "name": "Kugoo M4 Pro", "rarity": "🔵 Редкий", "speed": 45, "weight": 2, "price": 25000},
-    {"id": 25, "name": "Kugoo Kirin G2 Pro", "rarity": "🔵 Редкий", "speed": 45, "weight": 2, "price": 28000},
-    {"id": 26, "name": "Ninebot KickScooter F30", "rarity": "🔵 Редкий", "speed": 30, "weight": 2, "price": 30000},
-    {"id": 27, "name": "Ninebot KickScooter F40", "rarity": "🔵 Редкий", "speed": 30, "weight": 2, "price": 32000},
-    {"id": 28, "name": "Xiaomi Electric Scooter 4 Pro", "rarity": "🔵 Редкий", "speed": 25, "weight": 2, "price": 35000},
-    {"id": 29, "name": "Joyor Y8-S", "rarity": "🔵 Редкий", "speed": 35, "weight": 2, "price": 38000},
-    {"id": 30, "name": "Halten Cross V3", "rarity": "🔵 Редкий", "speed": 40, "weight": 2, "price": 40000},
+    # --- Редкие (Динамичные городские и средние модели, 30-55 км/ч) ---
+    {"id": 31, "name": "Xiaomi Mi Electric Scooter Pro 2", "rarity": "🔵 Редкий", "speed": 25, "weight": 2, "price": 15000},
+    {"id": 32, "name": "Ninebot KickScooter Max G30LP", "rarity": "🔵 Редкий", "speed": 30, "weight": 2, "price": 18000},
+    {"id": 33, "name": "Ninebot KickScooter Max G30", "rarity": "🔵 Редкий", "speed": 30, "weight": 2, "price": 22000},
+    {"id": 34, "name": "Kugoo M4", "rarity": "🔵 Редкий", "speed": 40, "weight": 2, "price": 23000},
+    {"id": 35, "name": "Kugoo M4 Pro", "rarity": "🔵 Редкий", "speed": 45, "weight": 2, "price": 25000},
+    {"id": 36, "name": "Kugoo Kirin G2 Pro", "rarity": "🔵 Редкий", "speed": 45, "weight": 2, "price": 28000},
+    {"id": 37, "name": "Ninebot KickScooter F30", "rarity": "🔵 Редкий", "speed": 30, "weight": 2, "price": 30000},
+    {"id": 38, "name": "Ninebot KickScooter F40", "rarity": "🔵 Редкий", "speed": 30, "weight": 2, "price": 32000},
+    {"id": 39, "name": "Xiaomi Electric Scooter 4 Pro", "rarity": "🔵 Редкий", "speed": 25, "weight": 2, "price": 35000},
+    {"id": 40, "name": "Joyor Y8-S", "rarity": "🔵 Редкий", "speed": 35, "weight": 2, "price": 38000},
+    {"id": 41, "name": "Halten Cross V3", "rarity": "🔵 Редкий", "speed": 40, "weight": 2, "price": 40000},
+    {"id": 42, "name": "Kugoo R1", "rarity": "🔵 Редкий", "speed": 35, "weight": 2, "price": 41000},
+    {"id": 43, "name": "Kugoo R2", "rarity": "🔵 Редкий", "speed": 40, "weight": 2, "price": 42000},
+    {"id": 44, "name": "Kugoo R3", "rarity": "🔵 Редкий", "speed": 45, "weight": 2, "price": 43500},
+    {"id": 45, "name": "Kugoo R3 Pro", "rarity": "🔵 Редкий", "speed": 50, "weight": 2, "price": 45000},
+    {"id": 46, "name": "Kugoo Wish 03", "rarity": "🔵 Редкий", "speed": 35, "weight": 2, "price": 46000},
+    {"id": 47, "name": "Kugoo Wish 04", "rarity": "🔵 Редкий", "speed": 40, "weight": 2, "price": 47500},
+    {"id": 48, "name": "Kugoo Kirin M5", "rarity": "🔵 Редкий", "speed": 50, "weight": 2, "price": 49000},
+    {"id": 49, "name": "Kugoo Kirin M5 Pro", "rarity": "🔵 Редкий", "speed": 55, "weight": 2, "price": 52000},
+    {"id": 50, "name": "Ninebot Max G2", "rarity": "🔵 Редкий", "speed": 35, "weight": 2, "price": 54000},
+    {"id": 51, "name": "Ultron T10", "rarity": "🔵 Редкий", "speed": 50, "weight": 2, "price": 55000},
+    {"id": 52, "name": "Speedway 5", "rarity": "🔵 Редкий", "speed": 55, "weight": 2, "price": 57000},
+    {"id": 53, "name": "Dualtron Spider", "rarity": "🔵 Редкий", "speed": 60, "weight": 2, "price": 58000},
+    {"id": 54, "name": "Kugoo X1", "rarity": "🔵 Редкий", "speed": 45, "weight": 2, "price": 59000},
 
-    # Эпические
-    {"id": 31, "name": "KuKirin G3 Pro", "rarity": "🟣 Эпический", "speed": 65, "weight": 1, "price": 60000},
-    {"id": 32, "name": "Kugoo Kirin G4", "rarity": "🟣 Эпический", "speed": 70, "weight": 1, "price": 70000},
-    {"id": 33, "name": "Ultron T118", "rarity": "🟣 Эпический", "speed": 85, "weight": 1, "price": 80000},
-    {"id": 34, "name": "Vsett 9+", "rarity": "🟣 Эпический", "speed": 55, "weight": 1, "price": 85000},
-    {"id": 35, "name": "Vsett 10+", "rarity": "🟣 Эпический", "speed": 80, "weight": 1, "price": 90000},
+    # --- Эпические (Мощные полноприводные, 55-85 км/ч) ---
+    {"id": 55, "name": "KuKirin G3 Pro", "rarity": "🟣 Эпический", "speed": 65, "weight": 1, "price": 60000},
+    {"id": 56, "name": "Kugoo Kirin G4", "rarity": "🟣 Эпический", "speed": 70, "weight": 1, "price": 70000},
+    {"id": 57, "name": "Ultron T118", "rarity": "🟣 Эпический", "speed": 85, "weight": 1, "price": 80000},
+    {"id": 58, "name": "Vsett 9+", "rarity": "🟣 Эпический", "speed": 55, "weight": 1, "price": 85000},
+    {"id": 59, "name": "Vsett 10+", "rarity": "🟣 Эпический", "speed": 80, "weight": 1, "price": 90000},
+    {"id": 60, "name": "Kugoo R4", "rarity": "🟣 Эпический", "speed": 60, "weight": 1, "price": 92000},
+    {"id": 61, "name": "Kugoo R4 Pro", "rarity": "🟣 Эпический", "speed": 65, "weight": 1, "price": 95000},
+    {"id": 62, "name": "Kugoo R5", "rarity": "🟣 Эпический", "speed": 70, "weight": 1, "price": 98000},
+    {"id": 63, "name": "Kugoo R5 Pro", "rarity": "🟣 Эпический", "speed": 75, "weight": 1, "price": 102000},
+    {"id": 64, "name": "Kugoo Wish 05", "rarity": "🟣 Эпический", "speed": 60, "weight": 1, "price": 105000},
+    {"id": 65, "name": "Kugoo Wish 06", "rarity": "🟣 Эпический", "speed": 65, "weight": 1, "price": 108000},
+    {"id": 66, "name": "Kugoo Kirin G2 Master", "rarity": "🟣 Эпический", "speed": 60, "weight": 1, "price": 110000},
+    {"id": 67, "name": "Kugoo Kirin G3", "rarity": "🟣 Эпический", "speed": 50, "weight": 1, "price": 112000},
+    {"id": 68, "name": "Dualtron Eagle Pro", "rarity": "🟣 Эпический", "speed": 75, "weight": 1, "price": 115000},
+    {"id": 69, "name": "Dualtron Victor", "rarity": "🟣 Эпический", "speed": 80, "weight": 1, "price": 120000},
+    {"id": 70, "name": "Kaabo Mantis 10 Pro", "rarity": "🟣 Эпический", "speed": 60, "weight": 1, "price": 125000},
+    {"id": 71, "name": "Kaabo Mantis King GT", "rarity": "🟣 Эпический", "speed": 70, "weight": 1, "price": 130000},
+    {"id": 72, "name": "Halten RS-03 v2", "rarity": "🟣 Эпический", "speed": 75, "weight": 1, "price": 135000},
+    {"id": 73, "name": "Currus R11", "rarity": "🟣 Эпический", "speed": 80, "weight": 1, "price": 140000},
+    {"id": 74, "name": "Speedway 4", "rarity": "🟣 Эпический", "speed": 50, "weight": 1, "price": 145000},
 
-    # Легендарные
-    {"id": 36, "name": "Dualtron Thunder 3", "rarity": "🟡 Легендарный", "speed": 100, "weight": 0.3, "price": 150000},
-    {"id": 37, "name": "Dualtron X-Limited", "rarity": "🟡 Легендарный", "speed": 110, "weight": 0.2, "price": 200000},
-    {"id": 38, "name": "Kaabo Wolf King GT Pro", "rarity": "🟡 Легендарный", "speed": 100, "weight": 0.3, "price": 220000},
-    {"id": 39, "name": "Nami Burn-E 2 Max", "rarity": "🟡 Легендарный", "speed": 105, "weight": 0.2, "price": 250000},
+    # --- Легендарные (Супер-мощные гиперсамокаты, 90-115 км/ч) ---
+    {"id": 75, "name": "Dualtron Thunder 3", "rarity": "🟡 Легендарный", "speed": 100, "weight": 0.3, "price": 150000},
+    {"id": 76, "name": "Dualtron X-Limited", "rarity": "🟡 Легендарный", "speed": 110, "weight": 0.2, "price": 200000},
+    {"id": 77, "name": "Kaabo Wolf King GT Pro", "rarity": "🟡 Легендарный", "speed": 100, "weight": 0.3, "price": 220000},
+    {"id": 78, "name": "Nami Burn-E 2 Max", "rarity": "🟡 Легендарный", "speed": 105, "weight": 0.2, "price": 250000},
+    {"id": 79, "name": "Kugoo R6", "rarity": "🟡 Легендарный", "speed": 90, "weight": 0.3, "price": 270000},
+    {"id": 80, "name": "Kugoo R6 Pro", "rarity": "🟡 Легендарный", "speed": 95, "weight": 0.3, "price": 290000},
+    {"id": 81, "name": "Kugoo R7", "rarity": "🟡 Легендарный", "speed": 100, "weight": 0.2, "price": 310000},
+    {"id": 82, "name": "Kugoo Wish 07", "rarity": "🟡 Легендарный", "speed": 90, "weight": 0.3, "price": 330000},
+    {"id": 83, "name": "Kugoo Wish 08", "rarity": "🟡 Легендарный", "speed": 95, "weight": 0.3, "price": 350000},
+    {"id": 84, "name": "Dualtron Storm", "rarity": "🟡 Легендарный", "speed": 100, "weight": 0.2, "price": 360000},
+    {"id": 85, "name": "Dualtron Ultra 2", "rarity": "🟡 Легендарный", "speed": 100, "weight": 0.2, "price": 370000},
+    {"id": 86, "name": "Vsett 11+", "rarity": "🟡 Легендарный", "speed": 85, "weight": 0.3, "price": 380000},
+    {"id": 87, "name": "Nami Burn-E Viper", "rarity": "🟡 Легендарный", "speed": 115, "weight": 0.2, "price": 390000},
 
-    # Ультра
-    {"id": 40, "name": "Kugoo Max Speed", "rarity": "💎 Ультра", "speed": 130, "weight": 0.08, "price": 400000},
-    {"id": 41, "name": "Ninebot S3 Pro", "rarity": "💎 Ультра", "speed": 135, "weight": 0.07, "price": 450000},
-    {"id": 42, "name": "Kugoo F3", "rarity": "💎 Ультра", "speed": 140, "weight": 0.06, "price": 500000},
-    {"id": 43, "name": "Kugoo G5", "rarity": "💎 Ультра", "speed": 150, "weight": 0.05, "price": 550000},
-    {"id": 44, "name": "Hyperion Quantum X-9000", "rarity": "💎 Ультра", "speed": 165, "weight": 0.04, "price": 700000},
-    {"id": 45, "name": "Cyberway Apex Prototype", "rarity": "💎 Ультра", "speed": 180, "weight": 0.03, "price": 850000},
-    {"id": 46, "name": "Stellar Phantom V", "rarity": "💎 Ультра", "speed": 200, "weight": 0.02, "price": 1000000},
+    # --- Ультра (Эксклюзивные гоночные монстры, 120-160 км/ч) ---
+    {"id": 88, "name": "Kugoo Max Speed", "rarity": "💎 Ультра", "speed": 50, "weight": 0.08, "price": 400000},
+    {"id": 89, "name": "Ninebot S3 Pro", "rarity": "💎 Ультра", "speed": 120, "weight": 0.07, "price": 450000},
+    {"id": 90, "name": "Kugoo F3", "rarity": "💎 Ультра", "speed": 60, "weight": 0.06, "price": 500000},
+    {"id": 91, "name": "Kugoo G5", "rarity": "💎 Ультра", "speed": 65, "weight": 0.05, "price": 550000},
+    {"id": 92, "name": "Hyperion Quantum X-9000", "rarity": "💎 Ультра", "speed": 130, "weight": 0.04, "price": 700000},
+    {"id": 93, "name": "Cyberway Apex Prototype", "rarity": "💎 Ультра", "speed": 140, "weight": 0.03, "price": 850000},
+    {"id": 94, "name": "Stellar Phantom V", "rarity": "💎 Ультра", "speed": 150, "weight": 0.02, "price": 1000000},
+    {"id": 95, "name": "Kugoo R8 Ultimate", "rarity": "💎 Ультра", "speed": 110, "weight": 0.08, "price": 1050000},
+    {"id": 96, "name": "Kugoo R9 Hyper", "rarity": "💎 Ультра", "speed": 120, "weight": 0.07, "price": 1100000},
+    {"id": 97, "name": "Kugoo Wish 09 Apex", "rarity": "💎 Ультра", "speed": 125, "weight": 0.06, "price": 1150000},
+    {"id": 98, "name": "Kugoo Wish 10 Godlike", "rarity": "💎 Ультра", "speed": 135, "weight": 0.05, "price": 1200000},
+    {"id": 99, "name": "Dualtron Achilleus", "rarity": "💎 Ультра", "speed": 125, "weight": 0.08, "price": 1250000},
+    {"id": 100, "name": "Dualtron City", "rarity": "💎 Ультра", "speed": 90, "weight": 0.07, "price": 1300000},
+    
+    # --- Дополнительные модели Kugoo R / Wish / Kirin (ID 101 - 150 с фиксированной реалистичной скоростью) ---
+    {"id": 101, "name": "Kugoo Kirin Mini", "rarity": "⚪️ Обычный", "speed": 20, "weight": 3, "price": 13000},
+    {"id": 102, "name": "Kugoo Wish Ultra Lite", "rarity": "⚪️ Обычный", "speed": 22, "weight": 3, "price": 13500},
+    {"id": 103, "name": "Kugoo R-Line 1", "rarity": "⚪️ Обычный", "speed": 25, "weight": 3, "price": 14000},
+    {"id": 104, "name": "Kugoo Kirin ES2", "rarity": "⚪️ Обычный", "speed": 25, "weight": 3, "price": 14200},
+    {"id": 105, "name": "Kugoo Wish City", "rarity": "⚪️ Обычный", "speed": 25, "weight": 3, "price": 14500},
+    {"id": 106, "name": "Kugoo R-Line 2", "rarity": "⚪️ Обычный", "speed": 28, "weight": 3, "price": 14800},
+    {"id": 107, "name": "Kugoo Kirin Mini 4", "rarity": "⚪️ Обычный", "speed": 25, "weight": 3, "price": 15000},
+    {"id": 108, "name": "Kugoo Wish Urban", "rarity": "⚪️ Обычный", "speed": 27, "weight": 3, "price": 15200},
+    {"id": 109, "name": "Kugoo R-Line 3", "rarity": "⚪️ Обычный", "speed": 30, "weight": 3, "price": 15500},
+    {"id": 110, "name": "Kugoo Kirin S1 Plus", "rarity": "⚪️ Обычный", "speed": 25, "weight": 3, "price": 16000},
+
+    {"id": 111, "name": "Kugoo Kirin G2", "rarity": "🔵 Редкий", "speed": 40, "weight": 2, "price": 17000},
+    {"id": 112, "name": "Kugoo Wish Sport 1", "rarity": "🔵 Редкий", "speed": 35, "weight": 2, "price": 19000},
+    {"id": 113, "name": "Kugoo R-Drive 1", "rarity": "🔵 Редкий", "speed": 40, "weight": 2, "price": 21000},
+    {"id": 114, "name": "Kugoo Kirin M4 Pro Plus", "rarity": "🔵 Редкий", "speed": 45, "weight": 2, "price": 24000},
+    {"id": 115, "name": "Kugoo Wish Sport 2", "rarity": "🔵 Редкий", "speed": 40, "weight": 2, "price": 26000},
+    {"id": 116, "name": "Kugoo R-Drive 2", "rarity": "🔵 Редкий", "speed": 45, "weight": 2, "price": 29000},
+    {"id": 117, "name": "Kugoo Kirin G2 Pro Plus", "rarity": "🔵 Редкий", "speed": 48, "weight": 2, "price": 31000},
+    {"id": 118, "name": "Kugoo Wish Cross", "rarity": "🔵 Редкий", "speed": 45, "weight": 2, "price": 33000},
+    {"id": 119, "name": "Kugoo R-Drive 3", "rarity": "🔵 Редкий", "speed": 50, "weight": 2, "price": 36000},
+    {"id": 120, "name": "Kugoo Kirin Max Speed", "rarity": "🔵 Редкий", "speed": 50, "weight": 2, "price": 39000},
+
+    {"id": 121, "name": "Kugoo Kirin G3 Pro Max", "rarity": "🟣 Эпический", "speed": 65, "weight": 1, "price": 62000},
+    {"id": 122, "name": "Kugoo Wish Monster 1", "rarity": "🟣 Эпический", "speed": 60, "weight": 1, "price": 68000},
+    {"id": 123, "name": "Kugoo R-Turbo 1", "rarity": "🟣 Эпический", "speed": 65, "weight": 1, "price": 74000},
+    {"id": 124, "name": "Kugoo Kirin G4 Pro", "rarity": "🟣 Эпический", "speed": 75, "weight": 1, "price": 82000},
+    {"id": 125, "name": "Kugoo Wish Monster 2", "rarity": "🟣 Эпический", "speed": 70, "weight": 1, "price": 88000},
+    {"id": 126, "name": "Kugoo R-Turbo 2", "rarity": "🟣 Эпический", "speed": 75, "weight": 1, "price": 94000},
+    {"id": 127, "name": "Kugoo Kirin G2 Master Pro", "rarity": "🟣 Эпический", "speed": 65, "weight": 1, "price": 99000},
+    {"id": 128, "name": "Kugoo Wish Extreme", "rarity": "🟣 Эпический", "speed": 70, "weight": 1, "price": 106000},
+    {"id": 129, "name": "Kugoo R-Turbo 3", "rarity": "🟣 Эпический", "speed": 80, "weight": 1, "price": 113000},
+    {"id": 130, "name": "Kugoo Kirin Beast", "rarity": "🟣 Эпический", "speed": 85, "weight": 1, "price": 118000},
+
+    {"id": 131, "name": "Kugoo Kirin G3 Pro Extreme", "rarity": "🟡 Легендарный", "speed": 90, "weight": 0.3, "price": 160000},
+    {"id": 132, "name": "Kugoo Wish Titan 1", "rarity": "🟡 Легендарный", "speed": 90, "weight": 0.3, "price": 180000},
+    {"id": 133, "name": "Kugoo R-Overlord 1", "rarity": "🟡 Легендарный", "speed": 95, "weight": 0.3, "price": 210000},
+    {"id": 134, "name": "Kugoo Kirin G4 Max", "rarity": "🟡 Легендарный", "speed": 100, "weight": 0.2, "price": 230000},
+    {"id": 135, "name": "Kugoo Wish Titan 2", "rarity": "🟡 Легендарный", "speed": 95, "weight": 0.3, "price": 260000},
+    {"id": 136, "name": "Kugoo R-Overlord 2", "rarity": "🟡 Легендарный", "speed": 100, "weight": 0.2, "price": 280000},
+    {"id": 137, "name": "Kugoo Kirin Beast Pro", "rarity": "🟡 Легендарный", "speed": 105, "weight": 0.2, "price": 300000},
+    {"id": 138, "name": "Kugoo Wish Titan 3", "rarity": "🟡 Легендарный", "speed": 100, "weight": 0.2, "price": 320000},
+    {"id": 139, "name": "Kugoo R-Overlord 3", "rarity": "🟡 Легендарный", "speed": 105, "weight": 0.2, "price": 340000},
+    {"id": 140, "name": "Kugoo Kirin Supreme", "rarity": "🟡 Легендарный", "speed": 110, "weight": 0.2, "price": 375000},
+    {"id": 141, "name": "Kugoo Kirin G3 Pro Godlike", "rarity": "💎 Ультра", "speed": 120, "weight": 0.08, "price": 420000},
+    {"id": 142, "name": "Kugoo Wish Phantom 1", "rarity": "💎 Ультра", "speed": 125, "weight": 0.07, "price": 480000},
+    {"id": 143, "name": "Kugoo R-Absolute 1", "rarity": "💎 Ультра", "speed": 130, "weight": 0.06, "price": 530000},
+    {"id": 144, "name": "Kugoo Kirin G4 Godlike", "rarity": "💎 Ультра", "speed": 135, "weight": 0.05, "price": 600000},
+    {"id": 145, "name": "Kugoo Wish Phantom 2", "rarity": "💎 Ультра", "speed": 140, "weight": 0.04, "price": 750000},
+    {"id": 146, "name": "Kugoo R-Absolute 2", "rarity": "💎 Ультра", "speed": 145, "weight": 0.03, "price": 900000},
+    {"id": 147, "name": "Kugoo Kirin Supreme Pro", "rarity": "💎 Ультра", "speed": 150, "weight": 0.02, "price": 1020000},
+    {"id": 148, "name": "Kugoo Wish Phantom 3", "rarity": "💎 Ультра", "speed": 155, "weight": 0.02, "price": 1120000},
+    {"id": 149, "name": "Kugoo R-Absolute 3", "rarity": "💎 Ультра", "speed": 160, "weight": 0.01, "price": 1220000},
+    {"id": 150, "name": "Kugoo Kirin Final Boss", "rarity": "💎 Ультра", "speed": 180, "weight": 0.01, "price": 1500000}
 ]
 
 bot = Bot(token=BOT_TOKEN)
@@ -168,19 +277,34 @@ async def handle_start(message: types.Message):
     now_iso = datetime.now().isoformat()
 
     async with aiosqlite.connect("bot_database.db") as db:
-        await db.execute(
-            "INSERT OR IGNORE INTO users (user_id, username, first_name, registered_at, watts, volts) VALUES (?, ?, ?, ?, 0, 0)",
-            (user_id, username, first_name, now_iso)
-        )
-        await db.execute(
-            "UPDATE users SET username = ?, first_name = ? WHERE user_id = ?", 
-            (username, first_name, user_id)
-        )
+        # Проверяем, существует ли уже пользователь в базе
+        cursor = await db.execute("SELECT watts, volts FROM users WHERE user_id = ?", (user_id,))
+        user_row = await cursor.fetchone()
+        await cursor.close()
+
+        if not user_row:
+            # Если пользователя нет вообще — создаем с нуля
+            await db.execute(
+                "INSERT INTO users (user_id, username, first_name, registered_at, watts, volts) VALUES (?, ?, ?, ?, 0, 0)",
+                (user_id, username, first_name, now_iso)
+            )
+        else:
+            # Если пользователь уже есть — просто обновляем его username и имя, не трогая баланс и дату регистрации!
+            await db.execute(
+                "UPDATE users SET username = ?, first_name = ? WHERE user_id = ?", 
+                (username, first_name, user_id)
+            )
         await db.commit()
 
     display_name, custom_id = get_user_display_info(user_id, first_name)
     text = (
-        f"👋 Привет, {display_name}! (ID: {custom_id})\n\n"
+        f"👋 С возвращением, {display_name}! (ID: {custom0 := custom_id if 'custom_id' in locals() else custom_id})\n\n"
+        "⚡ Добро пожаловать в E-ScooterCards!\n"
+        "Собирайте редкие самокаты, торгуйте на Авито, обменивайтесь и улучшайте транспорт!"
+    )
+    # Исправленный вывод ID для стабильности
+    text = (
+        f"👋 С возвращением, {display_name}! (ID: {custom_id})\n\n"
         "⚡ Добро пожаловать в E-ScooterCards!\n"
         "Собирайте редкие самокаты, торгуйте на Авито, обменивайтесь и улучшайте транспорт!"
     )
