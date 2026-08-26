@@ -4,7 +4,7 @@ import os
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
 ===== НАСТРОЙКИ =====
-TOKEN = "ВАШ_ТОКЕН_ОТ_BOTFATHER"  # 8909119386:AAGK9hTizA7n1pvrrwLmR2ew63Nf7Hh_VZg
+TOKEN = "8909119386:AAGK9hTizA7n1pvrrwLmR2ew63Nf7Hh_VZg"
 logging.basicConfig(level=logging.INFO)
 ===== ИНИЦИАЛИЗАЦИЯ =====
 bot = Bot(token=TOKEN)
